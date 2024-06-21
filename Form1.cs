@@ -27,6 +27,15 @@ namespace AplikacjaDoPrzegladaniaZdjec
             slideShowTimer = new System.Windows.Forms.Timer();
             slideShowTimer.Interval = 3000; // Default 3 seconds
             slideShowTimer.Tick += SlideShowTimer_Tick;
+
+            // Add Resize event handler
+            this.Resize += new EventHandler(Form1_Resize);
+        }
+
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            PositionDynamicControls();
         }
 
         private void otworzFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -35,16 +44,32 @@ namespace AplikacjaDoPrzegladaniaZdjec
             {
                 lastOpenedFolderPath = folderBrowserDialog.SelectedPath;
                 LoadImages(lastOpenedFolderPath);
-                btnAddToFavorites.Visible = false; // Initially hidden, will be shown when an image is selected
-                btnRemoveFromFavorites.Visible = false; // Hide the remove button
+
+                datePickerFrom.Visible = true;
+                datePickerTo.Visible = true;
+                btnApplyDateFilter.Visible = true;
+                searchTextBox.Visible = true;
+
+                PositionDynamicControls();
             }
+        }
+
+        private void PositionDynamicControls()
+        {
+
+            int bottomPadding = 5;
+
+            btnApplyDateFilter.Location = new Point(80, panelInfo.Height - btnApplyDateFilter.Height - btnRefresh.Height - bottomPadding);
+            datePickerTo.Location = new Point(120, btnApplyDateFilter.Top - datePickerTo.Height - bottomPadding);
+            datePickerFrom.Location = new Point(10, btnApplyDateFilter.Top - datePickerFrom.Height - bottomPadding);
+            searchTextBox.Location = new Point(10, datePickerFrom.Top - searchTextBox.Height - bottomPadding);
         }
 
         private void ulubioneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LoadImages(favoritesFolderPath);
-            btnAddToFavorites.Visible = false; // Hide the add button
-            btnRemoveFromFavorites.Visible = false; // Initially hidden, will be shown when an image is selected
+            btnAddToFavorites.Visible = false;
+            btnRemoveFromFavorites.Visible = false;
         }
 
         private void zapiszJakoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -104,6 +129,10 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 originalImage = Image.FromFile(currentImagePath);
                 pictureBox.Image = originalImage;
                 UpdateImageInfo(currentImagePath);
+                btnRotateLeft.Visible = true;
+                btnRotateRight.Visible = true;
+                btnFlipHorizontal.Visible = true;
+                btnRotate180.Visible = true;
 
                 // Check if the image is a favorite
                 string favoritePath = Path.Combine(favoritesFolderPath, Path.GetFileName(currentImagePath));
@@ -111,6 +140,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 {
                     btnAddToFavorites.Visible = false;
                     btnRemoveFromFavorites.Visible = true;
+
                 }
                 else
                 {
@@ -229,33 +259,6 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
-        private void btnRotateLeft_Click(object sender, EventArgs e)
-        {
-            if (pictureBox.Image != null)
-            {
-                pictureBox.Image.RotateFlip(RotateFlipType.Rotate270FlipNone);
-                pictureBox.Refresh();
-            }
-        }
-
-        private void btnRotateRight_Click(object sender, EventArgs e)
-        {
-            if (pictureBox.Image != null)
-            {
-                pictureBox.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
-                pictureBox.Refresh();
-            }
-        }
-
-        private void btnFlipHorizontal_Click(object sender, EventArgs e)
-        {
-            if (pictureBox.Image != null)
-            {
-                pictureBox.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
-                pictureBox.Refresh();
-            }
-        }
-
         private void SaveImageAsJpg(string path)
         {
             if (pictureBox.Image != null)
@@ -292,11 +295,11 @@ namespace AplikacjaDoPrzegladaniaZdjec
                         Tag = file
                     };
 
-                    // Check if the image is a favorite
+                    // Czy zdjęcie jest w ulubionych
                     string favoritePath = Path.Combine(favoritesFolderPath, Path.GetFileName(file));
                     if (File.Exists(favoritePath))
                     {
-                        item.Text += " ♥"; // Add heart icon to the text
+                        item.Text += " ♥";
                     }
 
                     listView.Items.Add(item);
@@ -328,7 +331,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                         item.EnsureVisible();
                         listView.Select();
                         found = true;
-                        break; // Select the first matching item
+                        break; // wybierz pierwszy pasujacy
                     }
                 }
 
@@ -341,7 +344,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 searchTextBox.Text = string.Empty;
                 searchTextBox.ForeColor = Color.Gray;
 
-                // Prevent the beep sound on Enter key press
+
                 e.SuppressKeyPress = true;
             }
         }
@@ -383,8 +386,8 @@ namespace AplikacjaDoPrzegladaniaZdjec
 
                     File.Delete(filePath);
                     listView.Items.Remove(listView.SelectedItems[0]); // Remove the item from the listView
-                    pictureBox.Image = null; // Clear the picture box
-                    labelInfo.Text = string.Empty; // Clear the info label
+                    pictureBox.Image = null;
+                    labelInfo.Text = string.Empty;
                 }
                 catch (Exception ex)
                 {
@@ -444,7 +447,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
 
                         File.Delete(destPath);
                         MessageBox.Show("Zdjęcie zostało usunięte z ulubionych.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadImages(lastOpenedFolderPath); // Reload the current folder to update the ListView
+                        LoadImages(lastOpenedFolderPath);
                         btnRemoveFromFavorites.Visible = false;
                         btnAddToFavorites.Visible = true;
                     }
@@ -455,5 +458,103 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 }
             }
         }
+        private void btnRotateLeft_Click(object sender, EventArgs e)
+        {
+            if (pictureBox.Image != null)
+            {
+                pictureBox.Image.RotateFlip(RotateFlipType.Rotate270FlipNone);
+                pictureBox.Refresh();
+            }
+        }
+
+        private void btnRotateRight_Click(object sender, EventArgs e)
+        {
+            if (pictureBox.Image != null)
+            {
+                pictureBox.Image.RotateFlip(RotateFlipType.Rotate90FlipNone);
+                pictureBox.Refresh();
+            }
+        }
+
+        private void btnFlipHorizontal_Click(object sender, EventArgs e)
+        {
+            if (pictureBox.Image != null)
+            {
+                pictureBox.Image.RotateFlip(RotateFlipType.RotateNoneFlipX);
+                pictureBox.Refresh();
+            }
+        }
+        private void btnRotate180_Click(object sender, EventArgs e)
+        {
+            if (pictureBox.Image != null)
+            {
+                pictureBox.Image.RotateFlip(RotateFlipType.Rotate180FlipNone);
+                pictureBox.Refresh();
+            }
+        }
+
+        private void LoadImages2(string folderPath, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            listView.Items.Clear();
+            imageList.Images.Clear();
+            var files = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly)
+                .Where(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                            f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                            f.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase));
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    FileInfo fileInfo = new FileInfo(file);
+                    DateTime creationDate = fileInfo.CreationTime.Date;
+
+                    if (fromDate.HasValue && creationDate < fromDate.Value)
+                        continue;
+
+                    if (toDate.HasValue && creationDate > toDate.Value)
+                        continue;
+
+                    using (Image image = Image.FromFile(file))
+                    {
+                        imageList.Images.Add((Image)image.Clone());
+                    }
+                    ListViewItem item = new ListViewItem
+                    {
+                        ImageIndex = imageList.Images.Count - 1,
+                        Text = Path.GetFileName(file),
+                        Tag = file
+                    };
+
+                    // Czy zdjęcie jest w ulubionych
+                    string favoritePath = Path.Combine(favoritesFolderPath, Path.GetFileName(file));
+                    if (File.Exists(favoritePath))
+                    {
+                        item.Text += " ♥";
+                    }
+                    listView.Items.Add(item);
+                }
+
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error loading image: {file}\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void btnApplyDateFilter_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(lastOpenedFolderPath))
+            {
+                DateTime fromDate = datePickerFrom.Value.Date;
+                DateTime toDate = datePickerTo.Value.Date;
+
+                LoadImages2(lastOpenedFolderPath, fromDate, toDate);
+            }
+        }
+
+
+
     }
 }

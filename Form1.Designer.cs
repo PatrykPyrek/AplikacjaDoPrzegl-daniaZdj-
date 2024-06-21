@@ -35,6 +35,10 @@
         private System.Windows.Forms.Button btnRotateLeft;
         private System.Windows.Forms.Button btnRotateRight;
         private System.Windows.Forms.Button btnFlipHorizontal;
+        private System.Windows.Forms.Button btnRotate180;
+        private System.Windows.Forms.DateTimePicker datePickerFrom;
+        private System.Windows.Forms.DateTimePicker datePickerTo;
+        private System.Windows.Forms.Button btnApplyDateFilter;
 
         protected override void Dispose(bool disposing)
         {
@@ -47,6 +51,7 @@
 
         private void InitializeComponent()
         {
+            Icon = new System.Drawing.Icon(Path.Combine(Application.StartupPath, "Icon", "app.ico"));
             components = new System.ComponentModel.Container();
             menuStrip = new MenuStrip();
             plikToolStripMenuItem = new ToolStripMenuItem();
@@ -80,6 +85,10 @@
             btnAddToFavorites = new Button();
             btnRemoveFromFavorites = new Button();
             panelButtons = new FlowLayoutPanel();
+            datePickerFrom = new System.Windows.Forms.DateTimePicker();
+            datePickerTo = new System.Windows.Forms.DateTimePicker();
+            btnApplyDateFilter = new System.Windows.Forms.Button();
+
             menuStrip.SuspendLayout();
             panelPodglad.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox).BeginInit();
@@ -187,40 +196,73 @@
             // Button Remove from Favorites
             btnRemoveFromFavorites = new Button();
             btnRemoveFromFavorites.Dock = DockStyle.Top;
-            btnRemoveFromFavorites.Height = 40;
+            btnRemoveFromFavorites.Height = 30;
             btnRemoveFromFavorites.Text = "Usuń z ulubionych";
             btnRemoveFromFavorites.BackColor = Color.FromArgb(45, 45, 48);
             btnRemoveFromFavorites.ForeColor = Color.White;
             btnRemoveFromFavorites.Font = new Font("Arial", 10, FontStyle.Bold);
             btnRemoveFromFavorites.Click += btnRemoveFromFavorites_Click;
             btnRemoveFromFavorites.Visible = false;
+            // Wspólne ustawienia dla przycisków
+            int buttonHeight = 40;
+            int buttonWidth = 150;
+            Color buttonBackColor = Color.FromArgb(45, 45, 48);
+            Color buttonForeColor = Color.White;
+            Font buttonFont = new Font("Arial", 10, FontStyle.Bold);
+            ContentAlignment textAlign = ContentAlignment.MiddleCenter;
+            Padding buttonPadding = new Padding(0);
             // Button Rotate Left
             btnRotateLeft = new Button();
-            btnRotateLeft.Height = 30;
-            btnRotateLeft.Width = 120;
+            btnRotateLeft.Height = buttonHeight;
+            btnRotateLeft.Width = buttonWidth;
             btnRotateLeft.Text = "Obróć w lewo";
-            btnRotateLeft.BackColor = Color.FromArgb(45, 45, 48);
-            btnRotateLeft.ForeColor = Color.White;
-            btnRotateLeft.Font = new Font("Arial", 10, FontStyle.Bold);
+            btnRotateLeft.BackColor = buttonBackColor;
+            btnRotateLeft.ForeColor = buttonForeColor;
+            btnRotateLeft.Font = buttonFont;
+            btnRotateLeft.TextAlign = textAlign;
+            btnRotateLeft.Padding = buttonPadding;
             btnRotateLeft.Click += btnRotateLeft_Click;
+            btnRotateLeft.Visible = false;
+            btnRotateLeft.Margin = new Padding(5);
             // Button Rotate Right
             btnRotateRight = new Button();
-            btnRotateRight.Height = 30;
-            btnRotateRight.Width = 120;
+            btnRotateRight.Height = buttonHeight;
+            btnRotateRight.Width = buttonWidth;
             btnRotateRight.Text = "Obróć w prawo";
-            btnRotateRight.BackColor = Color.FromArgb(45, 45, 48);
-            btnRotateRight.ForeColor = Color.White;
-            btnRotateRight.Font = new Font("Arial", 10, FontStyle.Bold);
+            btnRotateRight.BackColor = buttonBackColor;
+            btnRotateRight.ForeColor = buttonForeColor;
+            btnRotateRight.Font = buttonFont;
+            btnRotateRight.TextAlign = textAlign;
+            btnRotateRight.Padding = buttonPadding;
             btnRotateRight.Click += btnRotateRight_Click;
+            btnRotateRight.Visible = false;
+            btnRotateRight.Margin = new Padding(5);
             // Button Flip Horizontal
             btnFlipHorizontal = new Button();
-            btnFlipHorizontal.Height = 30;
-            btnFlipHorizontal.Width = 120;
+            btnFlipHorizontal.Height = buttonHeight;
+            btnFlipHorizontal.Width = buttonWidth;
             btnFlipHorizontal.Text = "Lustrzane odbicie";
-            btnFlipHorizontal.BackColor = Color.FromArgb(45, 45, 48);
-            btnFlipHorizontal.ForeColor = Color.White;
-            btnFlipHorizontal.Font = new Font("Arial", 10, FontStyle.Bold);
+            btnFlipHorizontal.BackColor = buttonBackColor;
+            btnFlipHorizontal.ForeColor = buttonForeColor;
+            btnFlipHorizontal.Font = buttonFont;
+            btnFlipHorizontal.TextAlign = textAlign;
+            btnFlipHorizontal.Padding = buttonPadding;
             btnFlipHorizontal.Click += btnFlipHorizontal_Click;
+            btnFlipHorizontal.Visible = false;
+            btnFlipHorizontal.Margin = new Padding(5);
+            // Button Rotate 180
+            btnRotate180 = new Button();
+            btnRotate180.Height = buttonHeight;
+            btnRotate180.Width = buttonWidth;
+            btnRotate180.Text = "Obróć o 180 stopni";
+            btnRotate180.BackColor = buttonBackColor;
+            btnRotate180.ForeColor = buttonForeColor;
+            btnRotate180.Font = buttonFont;
+            btnRotate180.TextAlign = textAlign;
+            btnRotate180.Padding = buttonPadding;
+            btnRotate180.Click += btnRotate180_Click;
+            btnRotate180.Visible = false;
+            btnRotate180.Margin = new Padding(5);
             // Panel Podgląd
             panelPodglad.BackColor = Color.FromArgb(45, 45, 48);
             panelPodglad.Controls.Add(pictureBox);
@@ -236,11 +278,14 @@
             // Panel Buttons
             panelButtons.BackColor = Color.FromArgb(45, 45, 48);
             panelButtons.Dock = DockStyle.Bottom;
-            panelButtons.Height = 50;
+            panelButtons.Height = buttonHeight + 10;
             panelButtons.Controls.Add(btnRotateLeft);
             panelButtons.Controls.Add(btnRotateRight);
             panelButtons.Controls.Add(btnFlipHorizontal);
+            panelButtons.Controls.Add(btnRotate180);
             panelButtons.FlowDirection = FlowDirection.LeftToRight;
+            panelButtons.Padding = new Padding(5, 5, 5, 5);
+            panelButtons.Margin = new Padding(0, 0, 0, 5);
             // PictureBox
             pictureBox.BackColor = Color.FromArgb(30, 30, 30);
             pictureBox.Dock = DockStyle.Fill;
@@ -253,6 +298,9 @@
             pictureBox.TabStop = false;
             // Panel Info
             panelInfo.BackColor = Color.FromArgb(45, 45, 48);
+            panelInfo.Controls.Add(datePickerFrom);
+            panelInfo.Controls.Add(datePickerTo);
+            panelInfo.Controls.Add(btnApplyDateFilter);
             panelInfo.Controls.Add(searchTextBox);
             panelInfo.Controls.Add(labelInfo);
             panelInfo.Dock = DockStyle.Left;
@@ -261,16 +309,40 @@
             panelInfo.Name = "panelInfo";
             panelInfo.Size = new Size(233, 351);
             panelInfo.TabIndex = 4;
+            // Date Picker From
+            datePickerFrom.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            datePickerFrom.Size = new System.Drawing.Size(100, 23);
+            datePickerFrom.TabIndex = 7;
+            datePickerFrom.Visible = false;
+            btnApplyDateFilter.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            datePickerFrom.CustomFormat = "dd.MM.yyyy";
+            datePickerFrom.Dock = DockStyle.None;
+            // Date Picker To
+            datePickerTo.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            datePickerTo.Size = new System.Drawing.Size(100, 23);
+            datePickerTo.TabIndex = 8;
+            datePickerTo.Visible = false;
+
+            datePickerTo.CustomFormat = "dd.MM.yyyy";
+            datePickerTo.Dock = DockStyle.None;
+            // Button Apply Date Filter
+            btnApplyDateFilter.Size = new System.Drawing.Size(75, 23);
+            btnApplyDateFilter.TabIndex = 9;
+            btnApplyDateFilter.Text = "Filtruj";
+            btnApplyDateFilter.UseVisualStyleBackColor = true;
+            btnApplyDateFilter.Visible = false;
+
+            btnApplyDateFilter.Click += new System.EventHandler(this.btnApplyDateFilter_Click);
             // Search TextBox
-            searchTextBox.Dock = DockStyle.Bottom;
             searchTextBox.Font = new Font("Arial", 12F);
             searchTextBox.ForeColor = Color.Gray;
-            searchTextBox.Location = new Point(0, 0);
             searchTextBox.Margin = new Padding(4, 3, 4, 3);
             searchTextBox.Name = "searchTextBox";
-            searchTextBox.Size = new Size(233, 26);
+            searchTextBox.Size = new Size(213, 26);
             searchTextBox.TabIndex = 0;
             searchTextBox.Text = "Wyszukaj zdjęcie..";
+            searchTextBox.Visible = false;
+            searchTextBox.Dock = DockStyle.Bottom;
             // Label Info
             labelInfo.Dock = DockStyle.Fill;
             labelInfo.Font = new Font("Arial", 12F, FontStyle.Bold);
@@ -364,6 +436,7 @@
             ResumeLayout(false);
             PerformLayout();
         }
+
     }
 
     // Custom renderer to set drop-down menu background color and text color, and remove checkmarks
