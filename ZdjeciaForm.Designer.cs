@@ -261,7 +261,7 @@
             btnRotate180 = new Button();
             btnRotate180.Height = buttonHeight;
             btnRotate180.Width = buttonWidth;
-            btnRotate180.Text = "Obróć o 180 stopni";
+            btnRotate180.Text = "Obróć o 180°";
             btnRotate180.BackColor = buttonBackColor;
             btnRotate180.ForeColor = buttonForeColor;
             btnRotate180.Font = buttonFont;

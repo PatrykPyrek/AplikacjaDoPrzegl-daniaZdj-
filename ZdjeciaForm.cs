@@ -46,7 +46,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             int bottomPadding = 10;
 
             btnApplyDateFilter.Location = new Point(80, panelInfo.Height - btnApplyDateFilter.Height - btnRefresh.Height - bottomPadding);
-            datePickerTo.Location = new Point(120, btnApplyDateFilter.Top - datePickerTo.Height - bottomPadding);
+            datePickerTo.Location = new Point(140, btnApplyDateFilter.Top - datePickerTo.Height - bottomPadding);
             datePickerFrom.Location = new Point(10, btnApplyDateFilter.Top - datePickerFrom.Height - bottomPadding);
         }
 
@@ -500,7 +500,10 @@ namespace AplikacjaDoPrzegladaniaZdjec
 
                         File.Delete(destPath);
                         MessageBox.Show("Zdjęcie zostało usunięte z ulubionych.", "Informacja", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadImages(lastOpenedFolderPath);
+                        if(lastOpenedFolderPath != null)
+                        {
+                            LoadImages(lastOpenedFolderPath);
+                        }
                         btnRemoveFromFavorites.Visible = false;
                         btnAddToFavorites.Visible = true;
                     }
