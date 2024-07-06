@@ -1,6 +1,6 @@
 ﻿namespace AplikacjaDoPrzegladaniaZdjec
 {
-    partial class Form1
+    partial class ZdjeciaForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.MenuStrip menuStrip;
@@ -40,6 +40,10 @@
         private System.Windows.Forms.DateTimePicker datePickerTo;
         private System.Windows.Forms.Button btnApplyDateFilter;
 
+        /// <summary>
+        /// Zwolnienie wszystkich używanych zasobów.
+        /// </summary>
+        /// <param name="disposing">true, jeśli zarządzane zasoby mają być zwolnione; w przeciwnym razie false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -49,6 +53,9 @@
             base.Dispose(disposing);
         }
 
+        /// <summary>
+        /// Metoda wymagana do obsługi Projektanta - nie modyfikować jej zawartości w edytorze kodu.
+        /// </summary>
         private void InitializeComponent()
         {
             Icon = new System.Drawing.Icon(Path.Combine(Application.StartupPath, "Icon", "app.ico"));
@@ -190,7 +197,7 @@
             btnAddToFavorites.Text = "Dodaj do ulubionych";
             btnAddToFavorites.BackColor = Color.FromArgb(45, 45, 48);
             btnAddToFavorites.ForeColor = Color.White;
-            btnAddToFavorites.Font = new Font("Arial", 10, FontStyle.Bold);
+            btnAddToFavorites.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             btnAddToFavorites.Click += btnAddToFavorites_Click;
             btnAddToFavorites.Visible = false;
             // Button Remove from Favorites
@@ -200,7 +207,7 @@
             btnRemoveFromFavorites.Text = "Usuń z ulubionych";
             btnRemoveFromFavorites.BackColor = Color.FromArgb(45, 45, 48);
             btnRemoveFromFavorites.ForeColor = Color.White;
-            btnRemoveFromFavorites.Font = new Font("Arial", 10, FontStyle.Bold);
+            btnRemoveFromFavorites.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             btnRemoveFromFavorites.Click += btnRemoveFromFavorites_Click;
             btnRemoveFromFavorites.Visible = false;
             // Wspólne ustawienia dla przycisków
@@ -208,7 +215,7 @@
             int buttonWidth = 150;
             Color buttonBackColor = Color.FromArgb(45, 45, 48);
             Color buttonForeColor = Color.White;
-            Font buttonFont = new Font("Arial", 10, FontStyle.Bold);
+            Font buttonFont = new Font("Segoe UI", 10, FontStyle.Bold);
             ContentAlignment textAlign = ContentAlignment.MiddleCenter;
             Padding buttonPadding = new Padding(0);
             // Button Rotate Left
@@ -334,7 +341,7 @@
 
             btnApplyDateFilter.Click += new System.EventHandler(this.btnApplyDateFilter_Click);
             // Search TextBox
-            searchTextBox.Font = new Font("Arial", 12F);
+            searchTextBox.Font = new Font("Segoe UI", 12F);
             searchTextBox.ForeColor = Color.Gray;
             searchTextBox.Margin = new Padding(4, 3, 4, 3);
             searchTextBox.Name = "searchTextBox";
@@ -345,7 +352,7 @@
             searchTextBox.Dock = DockStyle.Bottom;
             // Label Info
             labelInfo.Dock = DockStyle.Fill;
-            labelInfo.Font = new Font("Arial", 12F, FontStyle.Bold);
+            labelInfo.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             labelInfo.ForeColor = Color.White;
             labelInfo.Location = new Point(0, 26);
             labelInfo.Margin = new Padding(4, 3, 4, 3);
@@ -436,54 +443,5 @@
             ResumeLayout(false);
             PerformLayout();
         }
-
-    }
-
-    // Custom renderer to set drop-down menu background color and text color, and remove checkmarks
-    public class CustomToolStripRenderer : ToolStripProfessionalRenderer
-    {
-        public CustomToolStripRenderer() : base(new CustomProfessionalColors()) { }
-
-        protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
-        {
-            base.OnRenderMenuItemBackground(e);
-            if (e.Item.Selected)
-            {
-                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(45, 45, 48)), e.Item.ContentRectangle);
-                e.Item.ForeColor = Color.White;
-            }
-            else
-            {
-                e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(30, 30, 30)), e.Item.ContentRectangle);
-                e.Item.ForeColor = Color.White;
-            }
-        }
-
-        protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
-        {
-            e.TextColor = Color.White;
-            base.OnRenderItemText(e);
-        }
-
-        protected override void OnRenderImageMargin(ToolStripRenderEventArgs e)
-        {
-            // Do not render the image margin
-        }
-
-        protected override void OnRenderItemCheck(ToolStripItemImageRenderEventArgs e)
-        {
-            // Do not render the check mark
-        }
-    }
-
-    public class CustomProfessionalColors : ProfessionalColorTable
-    {
-        public override Color MenuItemSelected => Color.FromArgb(45, 45, 48);
-        public override Color MenuItemBorder => Color.Black;
-        public override Color MenuItemPressedGradientBegin => Color.FromArgb(45, 45, 48);
-        public override Color MenuItemPressedGradientEnd => Color.FromArgb(45, 45, 48);
-        public override Color MenuItemSelectedGradientBegin => Color.FromArgb(45, 45, 48);
-        public override Color MenuItemSelectedGradientEnd => Color.FromArgb(45, 45, 48);
-        public override Color ToolStripDropDownBackground => Color.FromArgb(30, 30, 30);
     }
 }

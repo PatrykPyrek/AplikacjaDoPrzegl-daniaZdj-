@@ -9,9 +9,13 @@ namespace AplikacjaDoPrzegladaniaZdjec
 {
     public partial class SlideshowForm : Form
     {
+        // Lista ścieżek do obrazów do wyświetlenia w pokazie slajdów
         private List<string> imagePaths;
+        // Aktualny indeks wyświetlanego obrazu
         private int currentIndex;
+        // Timer do automatycznego przełączania obrazów
         private System.Windows.Forms.Timer slideshowTimer;
+        // Kontrolki interfejsu użytkownika
         private PictureBox pictureBox;
         private Button closeButton;
         private Button stopButton;
@@ -23,10 +27,12 @@ namespace AplikacjaDoPrzegladaniaZdjec
         public SlideshowForm()
         {
             InitializeComponent();
+            // Inicjalizacja timera
             slideshowTimer = new System.Windows.Forms.Timer();
-            slideshowTimer.Interval = 3000; // Default 3 seconds
+            slideshowTimer.Interval = 3000; // domyślnie 3 sekundy
             slideshowTimer.Tick += SlideshowTimer_Tick;
 
+            // Inicjalizacja i konfiguracja PictureBox
             pictureBox = new PictureBox
             {
                 Dock = DockStyle.Fill,
@@ -35,13 +41,14 @@ namespace AplikacjaDoPrzegladaniaZdjec
             };
             Controls.Add(pictureBox);
 
+            // Inicjalizacja i konfiguracja przycisków
             closeButton = new Button
             {
                 Text = "Zamknij",
                 Dock = DockStyle.Top,
                 Height = 30,
                 Width = 100,
-                BackColor = Color.FromArgb(128, 255, 255, 255), // Semi-transparent white
+                BackColor = Color.FromArgb(128, 255, 255, 255), // Półprzezroczysty biały
                 ForeColor = Color.Black,
                 Font = new Font("Arial", 10, FontStyle.Bold)
             };
@@ -61,7 +68,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 Text = "Zatrzymaj",
                 Height = 30,
                 Width = 100,
-                BackColor = Color.FromArgb(128, 255, 255, 255), // Semi-transparent white
+                BackColor = Color.FromArgb(128, 255, 255, 255),
                 ForeColor = Color.Black,
                 Font = new Font("Arial", 10, FontStyle.Bold)
             };
@@ -73,7 +80,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 Text = "1s",
                 Height = 30,
                 Width = 50,
-                BackColor = Color.FromArgb(128, 255, 255, 255), // Semi-transparent white
+                BackColor = Color.FromArgb(128, 255, 255, 255),
                 ForeColor = Color.Black,
                 Font = new Font("Arial", 10, FontStyle.Bold)
             };
@@ -85,7 +92,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 Text = "5s",
                 Height = 30,
                 Width = 50,
-                BackColor = Color.FromArgb(128, 255, 255, 255), // Semi-transparent white
+                BackColor = Color.FromArgb(128, 255, 255, 255),
                 ForeColor = Color.Black,
                 Font = new Font("Arial", 10, FontStyle.Bold)
             };
@@ -97,7 +104,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 Text = "10s",
                 Height = 30,
                 Width = 50,
-                BackColor = Color.FromArgb(128, 255, 255, 255), // Semi-transparent white
+                BackColor = Color.FromArgb(128, 255, 255, 255),
                 ForeColor = Color.Black,
                 Font = new Font("Arial", 10, FontStyle.Bold)
             };
@@ -107,22 +114,27 @@ namespace AplikacjaDoPrzegladaniaZdjec
             Controls.Add(buttonPanel);
         }
 
+        // Obsługa kliknięcia przycisku zamknięcia
         private void CloseButton_Click(object sender, EventArgs e)
         {
             StopSlideshow();
             this.Close();
         }
 
+        // Obsługa kliknięcia przycisku zatrzymania pokazu slajdów
         private void StopButton_Click(object sender, EventArgs e)
         {
             StopSlideshow();
         }
 
+        // Ustawienie prędkości pokazu slajdów
         private void SetSlideshowSpeed(int interval)
         {
             slideshowTimer.Interval = interval;
+            slideshowTimer.Start();
         }
 
+        // Ładowanie obrazów z podanego folderu
         public void LoadImages(string folderPath)
         {
             imagePaths = Directory.GetFiles(folderPath, "*.*", SearchOption.TopDirectoryOnly)
@@ -139,16 +151,19 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Rozpoczęcie pokazu slajdów
         public void StartSlideshow()
         {
             slideshowTimer.Start();
         }
 
+        // Zatrzymanie pokazu slajdów
         public void StopSlideshow()
         {
             slideshowTimer.Stop();
         }
 
+        // Obsługa zdarzenia timera - przełączanie obrazów
         private void SlideshowTimer_Tick(object sender, EventArgs e)
         {
             if (imagePaths == null || !imagePaths.Any()) return;

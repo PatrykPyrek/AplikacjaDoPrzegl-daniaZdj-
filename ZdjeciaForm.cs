@@ -7,37 +7,56 @@ using System.Drawing.Imaging;
 
 namespace AplikacjaDoPrzegladaniaZdjec
 {
-    public partial class Form1 : Form
+    public partial class ZdjeciaForm : Form
     {
+        // Ścieżka do aktualnie wybranego obrazu
         private string currentImagePath;
+        // Oryginalny obraz przed edycją
         private Image originalImage;
+        // Flaga określająca, czy pokaz slajdów jest aktywny
         private bool isSlideShowActive = false;
+        // Timer do pokazu slajdów
         private System.Windows.Forms.Timer slideShowTimer;
+        // Ścieżka do ostatnio otwartego folderu
         private string lastOpenedFolderPath;
+        // Ścieżka do folderu ulubionych
         private string favoritesFolderPath;
 
-        public Form1()
+        public ZdjeciaForm()
         {
             InitializeComponent();
+            // Inicjalizacja ścieżki do folderu ulubionych
             favoritesFolderPath = Path.Combine(Application.StartupPath, "Favorites");
             if (!Directory.Exists(favoritesFolderPath))
             {
                 Directory.CreateDirectory(favoritesFolderPath);
             }
+            // Inicjalizacja timera do pokazu slajdów
             slideShowTimer = new System.Windows.Forms.Timer();
-            slideShowTimer.Interval = 3000; // Default 3 seconds
+            slideShowTimer.Interval = 3000; // domyślnie 3 sekundy
             slideShowTimer.Tick += SlideShowTimer_Tick;
 
-            // Add Resize event handler
+            // Dodanie obsługi zdarzenia zmiany rozmiaru
             this.Resize += new EventHandler(Form1_Resize);
         }
 
-
-        private void Form1_Resize(object sender, EventArgs e)
+        // Aktualizacja pozycji elementów na formularzu w zależności od rozmiaru okna
+        private void DynamicPosition()
         {
-            PositionDynamicControls();
+            int bottomPadding = 10;
+
+            btnApplyDateFilter.Location = new Point(80, panelInfo.Height - btnApplyDateFilter.Height - btnRefresh.Height - bottomPadding);
+            datePickerTo.Location = new Point(120, btnApplyDateFilter.Top - datePickerTo.Height - bottomPadding);
+            datePickerFrom.Location = new Point(10, btnApplyDateFilter.Top - datePickerFrom.Height - bottomPadding);
         }
 
+        // Obsługa zdarzenia zmiany rozmiaru formularza
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            DynamicPosition();
+        }
+
+        // Obsługa kliknięcia menu "Otwórz folder"
         private void otworzFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
@@ -50,21 +69,11 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 btnApplyDateFilter.Visible = true;
                 searchTextBox.Visible = true;
 
-                PositionDynamicControls();
+                DynamicPosition();
             }
         }
 
-        private void PositionDynamicControls()
-        {
-
-            int bottomPadding = 5;
-
-            btnApplyDateFilter.Location = new Point(80, panelInfo.Height - btnApplyDateFilter.Height - btnRefresh.Height - bottomPadding);
-            datePickerTo.Location = new Point(120, btnApplyDateFilter.Top - datePickerTo.Height - bottomPadding);
-            datePickerFrom.Location = new Point(10, btnApplyDateFilter.Top - datePickerFrom.Height - bottomPadding);
-            searchTextBox.Location = new Point(10, datePickerFrom.Top - searchTextBox.Height - bottomPadding);
-        }
-
+        // Obsługa kliknięcia menu "Ulubione"
         private void ulubioneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             LoadImages(favoritesFolderPath);
@@ -72,6 +81,42 @@ namespace AplikacjaDoPrzegladaniaZdjec
             btnRemoveFromFavorites.Visible = false;
         }
 
+        // Zapis obrazu do pliku w wybranym formacie
+        private void SaveImage(string path)
+        {
+            if (pictureBox.Image != null)
+            {
+                ImageFormat format;
+
+                // Określenie formatu pliku na podstawie rozszerzenia
+                switch (Path.GetExtension(path).ToLower())
+                {
+                    case ".bmp":
+                        format = ImageFormat.Bmp;
+                        break;
+                    case ".png":
+                        format = ImageFormat.Png;
+                        break;
+                    default:
+                        format = ImageFormat.Jpeg;
+                        break;
+                }
+
+                try
+                {
+                    using (Bitmap bmp = new Bitmap(pictureBox.Image))
+                    {
+                        bmp.Save(path, format);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Błąd podczas zapisywania pliku, upewnij się, że plik ma unikalną nazwę", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        // Obsługa kliknięcia menu "Zapisz jako"
         private void zapiszJakoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (currentImagePath != null)
@@ -80,11 +125,12 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 saveFileDialog.Filter = "JPEG Image|*.jpg|PNG Image|*.png|Bitmap Image|*.bmp";
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    SaveImageAsJpg(saveFileDialog.FileName);
+                    SaveImage(saveFileDialog.FileName);
                 }
             }
         }
 
+        // Obsługa kliknięcia menu "Prezentacja"
         private void prezentacjaToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(lastOpenedFolderPath))
@@ -102,16 +148,19 @@ namespace AplikacjaDoPrzegladaniaZdjec
             slideshowForm.StartSlideshow();
         }
 
+        // Obsługa kliknięcia menu "Filtry"
         private void filtryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             panelFiltry.Visible = !panelFiltry.Visible;
         }
 
+        // Obsługa kliknięcia menu "Instrukcja"
         private void instrukcjaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Użyj strzałek do nawigacji po zdjęciach.", "Instrukcja", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Użyj strzałek do nawigacji po zdjęciach lub kliknij na zdjęcie z listy.", "Instrukcja", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        // Obsługa zdarzenia timera pokazu slajdów
         private void SlideShowTimer_Tick(object sender, EventArgs e)
         {
             if (listView.Items.Count > 0)
@@ -121,6 +170,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa zmiany zaznaczenia w ListView
         private void listView_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (listView.SelectedItems.Count > 0)
@@ -134,13 +184,12 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 btnFlipHorizontal.Visible = true;
                 btnRotate180.Visible = true;
 
-                // Check if the image is a favorite
+                // Czy zdjęcie jest w ulubionych
                 string favoritePath = Path.Combine(favoritesFolderPath, Path.GetFileName(currentImagePath));
                 if (File.Exists(favoritePath))
                 {
                     btnAddToFavorites.Visible = false;
                     btnRemoveFromFavorites.Visible = true;
-
                 }
                 else
                 {
@@ -150,6 +199,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // informacje o obrazie
         private void UpdateImageInfo(string imagePath)
         {
             FileInfo fileInfo = new FileInfo(imagePath);
@@ -160,6 +210,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                              $"Rozmiar pliku: {fileInfo.Length / 1024} KB";
         }
 
+        // Zastosowanie filtra grayscale
         private Bitmap ApplyGrayScaleFilter(Bitmap original)
         {
             Bitmap newBitmap = new Bitmap(original.Width, original.Height);
@@ -181,6 +232,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             return newBitmap;
         }
 
+        // Zastosowanie filtra sepia
         private Bitmap ApplySepiaFilter(Bitmap original)
         {
             Bitmap newBitmap = new Bitmap(original.Width, original.Height);
@@ -202,6 +254,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             return newBitmap;
         }
 
+        // Zastosowanie filtra invert
         private Bitmap ApplyInvertFilter(Bitmap original)
         {
             Bitmap newBitmap = new Bitmap(original.Width, original.Height);
@@ -219,6 +272,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             return newBitmap;
         }
 
+        // Obsługa kliknięcia przycisku odświeżania
         private void btnRefresh_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(lastOpenedFolderPath))
@@ -227,6 +281,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku filtra grayscale
         private void btnGrayScale_Click(object sender, EventArgs e)
         {
             if (originalImage != null)
@@ -235,6 +290,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku filtra sepia
         private void btnSepia_Click(object sender, EventArgs e)
         {
             if (originalImage != null)
@@ -243,6 +299,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku filtra invert
         private void btnInvert_Click(object sender, EventArgs e)
         {
             if (originalImage != null)
@@ -251,6 +308,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku usunięcia wszystkich filtrów
         private void btnNoFilter_Click(object sender, EventArgs e)
         {
             if (originalImage != null)
@@ -259,17 +317,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
-        private void SaveImageAsJpg(string path)
-        {
-            if (pictureBox.Image != null)
-            {
-                using (Bitmap bmp = new Bitmap(pictureBox.Image))
-                {
-                    bmp.Save(path, ImageFormat.Jpeg);
-                }
-            }
-        }
-
+        // Załadowanie obrazów z podanego folderu
         private void LoadImages(string folderPath)
         {
             listView.Items.Clear();
@@ -311,6 +359,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa wyszukiwania zdjęć
         private void searchTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -331,7 +380,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                         item.EnsureVisible();
                         listView.Select();
                         found = true;
-                        break; // wybierz pierwszy pasujacy
+                        break; // wybierz pierwszy pasujący
                     }
                 }
 
@@ -344,11 +393,11 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 searchTextBox.Text = string.Empty;
                 searchTextBox.ForeColor = Color.Gray;
 
-
                 e.SuppressKeyPress = true;
             }
         }
 
+        // Obsługa wejścia do pola wyszukiwania
         private void searchTextBox_Enter(object sender, EventArgs e)
         {
             if (searchTextBox.Text == "Wyszukaj zdjęcie..")
@@ -358,6 +407,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa opuszczenia pola wyszukiwania
         private void searchTextBox_Leave(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(searchTextBox.Text))
@@ -367,6 +417,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia menu "Usuń zdjęcie"
         private void usunZdjecieToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (listView.SelectedItems.Count > 0)
@@ -385,7 +436,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
                     GC.WaitForPendingFinalizers();
 
                     File.Delete(filePath);
-                    listView.Items.Remove(listView.SelectedItems[0]); // Remove the item from the listView
+                    listView.Items.Remove(listView.SelectedItems[0]); // Usunięcie elementu z ListView
                     pictureBox.Image = null;
                     labelInfo.Text = string.Empty;
                 }
@@ -396,6 +447,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku dodania do ulubionych
         private void btnAddToFavorites_Click(object sender, EventArgs e)
         {
             if (currentImagePath != null)
@@ -424,6 +476,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku usunięcia z ulubionych
         private void btnRemoveFromFavorites_Click(object sender, EventArgs e)
         {
             if (currentImagePath != null)
@@ -458,6 +511,8 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 }
             }
         }
+
+        // Obsługa kliknięcia przycisku obrotu w lewo
         private void btnRotateLeft_Click(object sender, EventArgs e)
         {
             if (pictureBox.Image != null)
@@ -467,6 +522,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku obrotu w prawo
         private void btnRotateRight_Click(object sender, EventArgs e)
         {
             if (pictureBox.Image != null)
@@ -476,6 +532,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku lustrzanego odbicia
         private void btnFlipHorizontal_Click(object sender, EventArgs e)
         {
             if (pictureBox.Image != null)
@@ -484,6 +541,8 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 pictureBox.Refresh();
             }
         }
+
+        // Obsługa kliknięcia przycisku obrotu o 180 stopni
         private void btnRotate180_Click(object sender, EventArgs e)
         {
             if (pictureBox.Image != null)
@@ -493,6 +552,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Załadowanie obrazów z podanego folderu z uwzględnieniem filtrów daty
         private void LoadImages2(string folderPath, DateTime? fromDate = null, DateTime? toDate = null)
         {
             listView.Items.Clear();
@@ -543,6 +603,7 @@ namespace AplikacjaDoPrzegladaniaZdjec
             }
         }
 
+        // Obsługa kliknięcia przycisku zastosowania filtra daty
         private void btnApplyDateFilter_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(lastOpenedFolderPath))
@@ -553,8 +614,5 @@ namespace AplikacjaDoPrzegladaniaZdjec
                 LoadImages2(lastOpenedFolderPath, fromDate, toDate);
             }
         }
-
-
-
     }
 }
